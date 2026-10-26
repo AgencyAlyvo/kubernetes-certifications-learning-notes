@@ -53,14 +53,14 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 
 ## Composants des Nodes
 
-- **`kubelet`** : composant chargé de créer et de surveiller les Pods sur son Node. Il exécute une boucle de synchronisation qui cherche à faire converger l'état réel des containers vers l'état souhaité décrit par les spécifications des Pods.
-  1. **Observe les `Pods`** : récupère via le `kube-apiserver` les informations sur les `Pods` assignés à son `Node`. Il gère également les `Static Pods` définis localement.
-  2. **Synchronise leur état** : la boucle de synchronisation (*Sync Loop*) regroupe les travaux provenant de différentes sources pour les `Pods` concernés. Les *Pod workers* exécutent la logique de synchronisation appropriée afin de rapprocher leur état réel de l'état souhaité.
-  3. **Prépare leur exécution** : coordonne notamment le montage des volumes et la mise à disposition des configurations et des secrets nécessaires aux containers.
-  4. **Pilote le `Container runtime`** : utilise la `Container Runtime Interface` (`CRI`) pour demander au runtime de créer le bac à sable du `Pod` (*Pod sandbox*), puis de créer et de démarrer les containers définis dans le `PodSpec`. Il lui demande également d'arrêter ou de supprimer les containers lorsque nécessaire.
-  5. **Détecte les changements d'état des containers** : le `PLEG` (*Pod Lifecycle Event Generator*) interroge périodiquement le runtime pour connaître l'état des containers. Il génère des événements qui réveillent la boucle de synchronisation afin d'actualiser l'état des `Pods`.
-  6. **Exécute les probes configurées** : effectue les `startupProbe`, `readinessProbe` et `livenessProbe` lorsqu'elles sont configurées. Leurs résultats permettent notamment de déterminer si l'application a terminé son démarrage, si le container est prêt à recevoir du trafic ou si celui-ci doit être redémarré.
-  7. **Actualise l'état du cluster** : met à jour les informations relatives aux `Pods` et au `Node`, puis transmet les mises à jour nécessaires au `kube-apiserver`.
+- **`kubelet`** : composant chargé de créer et de surveiller les `Pods` qui lui sont assignés. Il cherche à faire converger leur état réel vers l'état souhaité décrit dans leur `PodSpec`.
+  1. **Observe les `Pods`** : récupère via le `kube-apiserver` les informations sur les `Pods` assignés à son `Node`. Il prend également en charge les `Static Pods`, dont les spécifications sont définies localement.
+  2. **Synchronise leur état** : sa boucle de synchronisation (*Sync Loop*) traite les travaux associés aux `Pods`. Les *Pod workers* exécutent la logique nécessaire pour rapprocher leur état réel de l'état souhaité.
+  3. **Prépare leur exécution** : coordonne les opérations nécessaires, notamment le montage des volumes et la mise à disposition des configurations et des secrets requis par les containers.
+  4. **Pilote le `Container runtime`** : utilise la `Container Runtime Interface` (`CRI`) pour demander au runtime de créer le *`Pod sandbox`*, puis de créer et de démarrer les containers définis dans le `PodSpec`. Il lui demande également d'arrêter ou de supprimer les containers lorsque nécessaire.
+  5. **Suit l'état des containers** : le `PLEG` (*Pod Lifecycle Event Generator*) interroge périodiquement le runtime pour détecter les changements d'état des containers et génère des événements utilisés par le `kubelet` pour déclencher des traitements de synchronisation. D'autres événements, notamment les changements observés via l'API, peuvent également déclencher ces traitements.
+  6. **Exécute les probes configurées** : exécute les `startupProbe`, `readinessProbe` et `livenessProbe` définies dans les spécifications des containers. Leurs résultats permettent notamment de déterminer si un conteneur a terminé son démarrage, s'il est prêt à recevoir du trafic ou s'il doit être redémarré.
+  7. **Actualise l'état du cluster** : met à jour l'état des `Pods` et les informations relatives à son `Node`, puis publie les mises à jour nécessaires via le `kube-apiserver`.
 
 - **`kube-proxy` (optionnel)** : composant réseau qui implémente une partie du comportement des `Services`.
   1. Observe via le `kube-apiserver` les ressources nécessaires au fonctionnement des `Services`, notamment les `Services` et leurs points de terminaison.
