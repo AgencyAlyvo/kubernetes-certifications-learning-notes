@@ -53,13 +53,14 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 
 ## Composants des Nodes
 
-- **`kubelet`** : chargé de veiller à ce que les `Pods` qui lui sont assignés fonctionnent conformément à leur spécification.
-  1. Observe via le `kube-apiserver` les `Pods` qui lui sont assignés. Il peut aussi gérer des `Static Pods` définis localement.
-  2. Récupère les spécifications des `Pods` concernés et compare l'état observé à l'état attendu décrit par le `PodSpec`.
-  3. Prépare l'exécution des `Pods`, notamment en coordonnant le montage des volumes et la mise à disposition des configurations nécessaires.
-  4. Demande au `Container runtime`, via la `Container Runtime Interface` (`CRI`), de créer, démarrer, arrêter ou redémarrer les conteneurs nécessaires pour respecter la spécification du `Pod`.
-  5. Surveille l'état des conteneurs et exécute les probes configurées : `startupProbe`, `readinessProbe` et `livenessProbe`. Leurs résultats permettent notamment de déterminer si un conteneur a démarré, s'il est prêt à recevoir du trafic ou s'il doit être redémarré.
-  6. Actualise l'état des `Pods` et du `Node`, puis transmet les mises à jour nécessaires au `kube-apiserver`.
+- **`kubelet`** : composant chargé de créer et de surveiller les Pods sur son Node. Il exécute une boucle de synchronisation qui cherche à faire converger l'état réel des containers vers l'état souhaité décrit par les spécifications des Pods.
+  1. **Observe les `Pods`** : récupère via le `kube-apiserver` les informations sur les `Pods` assignés à son `Node`. Il gère également les `Static Pods` définis localement.
+  2. **Synchronise leur état** : la boucle de synchronisation (*Sync Loop*) regroupe les travaux provenant de différentes sources pour les `Pods` concernés. Les *Pod workers* exécutent la logique de synchronisation appropriée afin de rapprocher leur état réel de l'état souhaité.
+  3. **Prépare leur exécution** : coordonne notamment le montage des volumes et la mise à disposition des configurations et des secrets nécessaires aux containers.
+  4. **Pilote le `Container runtime`** : utilise la `Container Runtime Interface` (`CRI`) pour demander au runtime de créer le bac à sable du `Pod` (*Pod sandbox*), puis de créer et de démarrer les containers définis dans le `PodSpec`. Il lui demande également d'arrêter ou de supprimer les containers lorsque nécessaire.
+  5. **Détecte les changements d'état des containers** : le `PLEG` (*Pod Lifecycle Event Generator*) interroge périodiquement le runtime pour connaître l'état des containers. Il génère des événements qui réveillent la boucle de synchronisation afin d'actualiser l'état des `Pods`.
+  6. **Exécute les probes configurées** : effectue les `startupProbe`, `readinessProbe` et `livenessProbe` lorsqu'elles sont configurées. Leurs résultats permettent notamment de déterminer si l'application a terminé son démarrage, si le container est prêt à recevoir du trafic ou si celui-ci doit être redémarré.
+  7. **Actualise l'état du cluster** : met à jour les informations relatives aux `Pods` et au `Node`, puis transmet les mises à jour nécessaires au `kube-apiserver`.
 
 - **`kube-proxy` (optionnel)** : composant réseau qui implémente une partie du comportement des `Services`.
   1. Observe via le `kube-apiserver` les ressources nécessaires au fonctionnement des `Services`, notamment les `Services` et leurs points de terminaison.
@@ -68,10 +69,10 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
   
   Si une implémentation réseau fournit un comportement équivalent pour les `Services`, `kube-proxy` n'est pas nécessaire.
 
-- **`Container runtime`** : composant chargé de l'exécution et du cycle de vie des conteneurs, par exemple `containerd` ou `CRI-O`.
+- **`Container runtime`** : composant chargé de gérer l'exécution des `Pods` et le cycle de vie de leurs containers, par exemple `containerd` ou `CRI-O`.
   1. Reçoit les demandes du `kubelet` via la `Container Runtime Interface` (`CRI`).
-  2. Prépare l'environnement nécessaire, puis crée, démarre, arrête ou supprime les conteneurs conformément aux demandes reçues.
-  3. Fournit au `kubelet` les informations sur l'état des conteneurs, que celui-ci utilise pour suivre et mettre à jour l'état des `Pods`.
+  2. **Gère l'environnement d'exécution** : crée le *`Pod sandbox`*, puis crée, démarre, arrête et supprime les containers du `Pod` selon les demandes du `kubelet` via la `CRI`.
+  3. Fournit au `kubelet` les informations sur l'état des containers et du *`Pod sandbox`*, que celui-ci utilise, avec d'autres informations, pour suivre et actualiser l'état des `Pods`.
 
 <br /><br />
 
