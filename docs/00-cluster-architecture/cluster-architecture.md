@@ -11,8 +11,8 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 
 - **`kube-apiserver`** : expose l'API HTTP Kubernetes et constitue le point d'entrée du Control Plane.
 - **`etcd`** : base de données clé-valeur distribuée qui stocke les données de configuration et l'état persistant du cluster.
-- **`kube-scheduler`** : surveille les nouveaux `Pods` qui n'ont pas encore de `Node` assigné et sélectionne un `Node` sur lequel les exécuter, en tenant compte des besoins en ressources, des contraintes matérielles, logicielles et de politique, des affinités, de la localisation des données et d'autres facteurs.
-- **`kube-controller-manager`** : exécute les `Controllers` Kubernetes, qui surveillent les ressources du cluster et agissent pour rapprocher l'état réel de l'état désiré (`Node Controller`, `Job Controller`, `EndpointSlice Controller`, `ServiceAccount Controller`, etc.).
+- **`kube-scheduler`** : surveille les nouveaux `Pods` qui n'ont pas encore de `Node` assigné et sélectionne un `Node` sur lequel les exécuter, en tenant compte des besoins en ressources, politique..etc
+- **`kube-controller-manager`** : exécute les `Controllers` Kubernetes, qui surveillent les ressources du cluster et agissent pour rapprocher l'état réel de l'état désiré (`Node Controller`, `ServiceAccount Controller`, etc.).
 - **`cloud-controller-manager` (optionnel)** : exécute les `Controllers` spécifiques au fournisseur Cloud, qui interagissent avec son API pour gérer certaines ressources de l'infrastructure, notamment les `Nodes`, les routes réseau et les `Load Balancers`.
 
 ## Composants des Nodes
