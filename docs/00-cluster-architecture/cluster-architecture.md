@@ -69,7 +69,7 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
   
   Si une implémentation réseau fournit un comportement équivalent pour les `Services`, `kube-proxy` n'est pas nécessaire.
 
-- **`Container runtime`** : composant chargé de gérer l'exécution des `Pods` et le cycle de vie de leurs containers, par exemple `containerd` ou `CRI-O`.
+- **`Container runtime`** : composant chargé de gérer l'environnement d'exécution des `Pods` et le cycle de vie de leurs containers, par exemple `containerd` ou `CRI-O`.
   1. Reçoit les demandes du `kubelet` via la `Container Runtime Interface` (`CRI`).
   2. **Gère l'environnement d'exécution** : crée le *`Pod sandbox`*, puis crée, démarre, arrête et supprime les containers du `Pod` selon les demandes du `kubelet` via la `CRI`.
   3. Fournit au `kubelet` les informations sur l'état des containers et du *`Pod sandbox`*, que celui-ci utilise, avec d'autres informations, pour suivre et actualiser l'état des `Pods`.
