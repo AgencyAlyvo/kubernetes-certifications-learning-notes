@@ -35,17 +35,28 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 
 <br /><br />
 
-## Variantes de déploiement
+## Options de déploiement du **Control Plane**
 
-Le Control Plane Kubernetes peut être déployé de plusieurs façons :
+Les composants du **Control Plane** peuvent être déployés de plusieurs manières :
 
-- **Déploiement traditionnel** : les composants s'exécutent directement sur des machines ou des VM, souvent sous forme de services `systemd`.
-- **`Static Pods`** : les composants sont déployés sous forme de `Pods` gérés directement par le `kubelet` sur des `Nodes` spécifiques. C'est notamment l'approche utilisée par `kubeadm`.
-- **Déploiement self-hosted** : les composants du Control Plane s'exécutent sous forme de `Pods` dans le cluster et sont gérés par des ressources Kubernetes, comme des `Deployments` ou des `StatefulSets`.
-- **Kubernetes managé** : le fournisseur Cloud prend en charge le déploiement et la gestion du Control Plane, par exemple avec Amazon EKS, Azure AKS ou Google GKE.
+- **Déploiement traditionnel** : Les composants du **Control Plane** s'exécutent directement sur des machines dédiées ou des machines virtuelles, souvent gérées en tant que services `systemd`.
 
-### Autres choix d'architecture
+- **`Static Pods`** : Les composants du **Control Plane** sont déployés sous forme de `pods static`, gérés par le `kubelet` sur des **Nodes** spécifiques. Il s'agit d'une approche courante utilisée par des outils comme `kubeadm`.
 
-- **Placement des workloads** : les machines du Control Plane peuvent aussi exécuter des `Pods` applicatifs. En production, on privilégie généralement des machines séparées pour préserver les ressources nécessaires à la gestion du cluster.
-- **Outils de déploiement** : `kubeadm`, `kops` et `Kubespray` permettent d'installer et de gérer des clusters Kubernetes.
-- **Personnalisation** : Kubernetes permet d'utiliser un `kube-scheduler` personnalisé, d'ajouter de nouveaux types de ressources avec les `CustomResourceDefinitions` (CRD) et d'intégrer les infrastructures Cloud via le `cloud-controller-manager`.
+- **Déploiement self-hosted** : Le **Control Plane** s'exécute sous forme de `Pods` au sein du cluster Kubernetes lui-même, gérés par des `Deployments` et des `StatefulSets` ou d'autres primitives Kubernetes.
+
+- **Kubernetes managé** : le fournisseur Cloud prend en charge le déploiement et la gestion du **Control Plane**, par exemple avec Amazon EKS, Azure AKS ou Google GKE.
+
+<br />
+
+## Outils de gestion de cluster
+
+- **Outils de déploiement** : `kubeadm`, `kops` et `Kubespray` offrent différentes approches pour le déploiement et la gestion de clusters, chacun avec sa propre méthode d'agencement et de gestion des composants.
+
+<br />
+
+## Personnalisation et extensibilité
+
+- **`kube-scheduler` personnalisé** : un scheduler personnalisé peut fonctionner en parallèle du `kube-scheduler` par défaut ou le remplacer entièrement.
+- **Extension de l'API Kubernetes** : les `CustomResourceDefinitions` (CRD) permettent d'ajouter de nouveaux types de ressources à l'API Kubernetes, tandis que l'API Aggregation permet d'y intégrer des API supplémentaires.
+- **Intégration Cloud** : les fournisseurs Cloud peuvent intégrer leurs services à Kubernetes via le `cloud-controller-manager`, notamment pour gérer les `Nodes`, les routes réseau et les `Load Balancers`.
