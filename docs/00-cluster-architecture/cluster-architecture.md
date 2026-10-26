@@ -28,3 +28,24 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 - **`kubelet`** : s'assure que les containers décrits dans les `PodSpecs` qui lui sont fournis sont en cours d'exécution et en bonne santé. Il communique avec le `kube-apiserver` pour récupérer les informations des `Pods` qui lui sont assignés et lui transmettre leur état. Il utilise le `Container runtime` pour démarrer, arrêter et surveiller les containers.
 - **`kube-proxy` (optionnel)** : observe les ressources Kubernetes nécessaires au fonctionnement des `Services`, notamment via le `kube-apiserver`, et adapte les règles réseau sur son `Node` afin de permettre les communications avec les `Pods` depuis l'intérieur ou l'extérieur du cluster. Si un plugin réseau fournit un comportement équivalent pour les `Services`, `kube-proxy` n'est pas nécessaire.
 - **`Container runtime`** : est responsable de l'exécution et du cycle de vie des containers. Il reçoit les demandes du `kubelet` pour démarrer ou arrêter les containers et lui fournit leur état.
+
+<br /><br />
+
+---
+
+<br /><br />
+
+## Variantes de déploiement
+
+Le Control Plane Kubernetes peut être déployé de plusieurs façons :
+
+- **Déploiement traditionnel** : les composants s'exécutent directement sur des machines ou des VM, souvent sous forme de services `systemd`.
+- **`Static Pods`** : les composants sont déployés sous forme de `Pods` gérés directement par le `kubelet` sur des `Nodes` spécifiques. C'est notamment l'approche utilisée par `kubeadm`.
+- **Déploiement self-hosted** : les composants du Control Plane s'exécutent sous forme de `Pods` dans le cluster et sont gérés par des ressources Kubernetes, comme des `Deployments` ou des `StatefulSets`.
+- **Kubernetes managé** : le fournisseur Cloud prend en charge le déploiement et la gestion du Control Plane, par exemple avec Amazon EKS, Azure AKS ou Google GKE.
+
+### Autres choix d'architecture
+
+- **Placement des workloads** : les machines du Control Plane peuvent aussi exécuter des `Pods` applicatifs. En production, on privilégie généralement des machines séparées pour préserver les ressources nécessaires à la gestion du cluster.
+- **Outils de déploiement** : `kubeadm`, `kops` et `Kubespray` permettent d'installer et de gérer des clusters Kubernetes.
+- **Personnalisation** : Kubernetes permet d'utiliser un `kube-scheduler` personnalisé, d'ajouter de nouveaux types de ressources avec les `CustomResourceDefinitions` (CRD) et d'intégrer les infrastructures Cloud via le `cloud-controller-manager`.
