@@ -35,7 +35,9 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 
 <br /><br />
 
-## Options de déploiement du **Control Plane**
+## Variations architecturales
+
+### Options de déploiement du **Control Plane**
 
 Les composants du **Control Plane** peuvent être déployés de plusieurs manières :
 
@@ -49,13 +51,13 @@ Les composants du **Control Plane** peuvent être déployés de plusieurs maniè
 
 <br />
 
-## Outils de gestion de cluster
+### Outils de gestion de cluster
 
 - **Outils de déploiement** : `kubeadm`, `kops` et `Kubespray` offrent différentes approches pour le déploiement et la gestion de clusters, chacun avec sa propre méthode d'agencement et de gestion des composants.
 
 <br />
 
-## Personnalisation et extensibilité
+### Personnalisation et extensibilité
 
 - **`kube-scheduler` personnalisé** : un scheduler personnalisé peut fonctionner en parallèle du `kube-scheduler` par défaut ou le remplacer entièrement.
 - **Extension de l'API Kubernetes** : les `CustomResourceDefinitions` (CRD) permettent d'ajouter de nouveaux types de ressources à l'API Kubernetes, tandis que l'API Aggregation permet d'y intégrer des API supplémentaires.
