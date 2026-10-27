@@ -83,7 +83,9 @@ namespaceSelector:                       # sélectionne des namespaces via leurs
 
 ---
 
-## Quels sont les namespaces initiaux ?
+## Quels sont les namespaces créés par défaut ?
+
+Kubernetes crée automatiquement ces 4 `namespaces` dans **tout cluster**, dès son installation. Des outils installés ensuite (CNI, ingress controller…) peuvent en ajouter d'autres (ex. `calico-system`, `ingress-nginx`).
 
 | `Namespace` | Rôle |
 |---|---|
@@ -132,6 +134,6 @@ kubectl api-resources --namespaced=false                 # ressources à l'éche
 - `namespace` = isolation de ressources namespacées dans un cluster. Pas d'imbrication, une ressource = un seul `namespace`.
 - Créer : `kubectl create namespace shop`. `name` en RFC 1123 DNS label, pas de préfixe `kube-`.
 - Sans `metadata.namespace` ni `-n` → `namespace` du contexte courant (`default` par défaut).
-- 4 `namespaces` initiaux : `default`, `kube-system`, `kube-public`, `kube-node-lease`.
+- 4 `namespaces` créés par défaut dans tout cluster : `default`, `kube-system`, `kube-public`, `kube-node-lease`.
 - DNS : `<service>` dans le même `namespace`, `<service>.<namespace>.svc.cluster.local` sinon.
 - `label` automatique `kubernetes.io/metadata.name` → cibler un `namespace` par son `name`.

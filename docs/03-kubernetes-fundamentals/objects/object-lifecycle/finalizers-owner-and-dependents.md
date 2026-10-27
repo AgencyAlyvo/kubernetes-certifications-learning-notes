@@ -1,4 +1,4 @@
-# Finalizers
+# Finalizers, Owners et Dependents
 
 ## C'est quoi un finalizer ?
 
@@ -35,6 +35,17 @@ metadata:
 
 ---
 
+## Finalizers courants
+
+| Finalizer | Rôle |
+|---|---|
+| `kubernetes.io/pvc-protection` | Le `PersistentVolumeClaim` n'est pas supprimé tant qu'un `Pod` l'utilise |
+| `kubernetes.io/pv-protection` | Le `PersistentVolume` n'est pas supprimé tant qu'il est utilisé |
+| `foregroundDeletion` | L'owner attend la suppression de ses dependents |
+| `orphan` | L'owner est supprimé, ses dependents sont conservés |
+
+---
+
 ## Exemple : comment Kubernetes protège les volumes ?
 
 Le mécanisme est le même pour **n'importe quel objet** qui a un `finalizer` (`Namespace`, ressource custom gérée par un operator…). Ici, avec un `PersistentVolume` :
@@ -46,12 +57,17 @@ Le mécanisme est le même pour **n'importe quel objet** qui a un `finalizer` (`
 
 Même principe avec `kubernetes.io/pvc-protection` sur les `PersistentVolumeClaims`.
 
+<br /><br />
+
 ---
 
-## Comment ça marche avec un owner et ses dependents ?
+<br /><br />
 
-- **Owner** : l'objet parent (exemple : un `Deployment`).
-- **Dependents** : les objets qui lui appartiennent (exemple : son `ReplicaSet` et ses `Pods`).
+## C'est quoi un owner et un dependent ?
+
+- **Owner** : un objet qui possède d'autres objets (exemple : un `Deployment` possède son `ReplicaSet`, un `ReplicaSet` possède ses `Pods`).
+- **Dependent** : un objet qui appartient à un owner (exemple : les `Pods` d'un `ReplicaSet`).
+- Quand on supprime un owner, ses dependents sont supprimés aussi (par défaut).
 
 Le lien est posé **sur le dependent**, dans `metadata.ownerReferences` :
 
@@ -80,6 +96,10 @@ metadata:
 
 - Booléen sur le dependent : `true` → ce dependent peut bloquer la suppression de son owner, en suppression foreground.
 - Mis **automatiquement** à `true` quand c'est un `controller` qui pose l'`ownerReference` (exemple : le `controller` de `Deployment`).
+
+---
+
+## Comment ça marche avec un owner et ses dependents ?
 
 Exemple : `kubectl delete deploy myapp --cascade=foreground`
 
@@ -134,21 +154,12 @@ metadata:
 
 ---
 
-## Finalizers courants
-
-| Finalizer | Rôle |
-|---|---|
-| `kubernetes.io/pvc-protection` | Le `PersistentVolumeClaim` n'est pas supprimé tant qu'un `Pod` l'utilise |
-| `kubernetes.io/pv-protection` | Le `PersistentVolume` n'est pas supprimé tant qu'il est utilisé |
-| `foregroundDeletion` | L'owner attend la suppression de ses dependents |
-| `orphan` | L'owner est supprimé, ses dependents sont conservés |
-
----
-
 ## Résumé
 
 - `finalizers` = clés dans `metadata.finalizers` qui bloquent la suppression tant qu'un `controller` n'a pas fait son nettoyage.
 - Cycle : `kubectl delete` → `deletionTimestamp` + `202` → `Terminating` → le `controller` retire sa clé → objet supprimé.
 - Après le `DELETE` : on peut retirer des `finalizers`, pas en ajouter. Le `deletionTimestamp` n'est plus modifiable. La suppression est irréversible.
 - `finalizer` personnalisé : prefix obligatoire (ex. `example.com/finalizer-name`), sinon l'API server rejette l'écriture.
+- Owner = objet qui possède d'autres objets, dependent = objet qui lui appartient (lien via `metadata.ownerReferences` sur le dependent, posé automatiquement).
+- Suppression d'un owner → ses dependents aussi. `--cascade=foreground` → `finalizer` `foregroundDeletion` (dependents d'abord), `--cascade=orphan` → dependents conservés.
 - Objet bloqué en `Terminating` → vérifier `finalizers` et `ownerReferences`.
