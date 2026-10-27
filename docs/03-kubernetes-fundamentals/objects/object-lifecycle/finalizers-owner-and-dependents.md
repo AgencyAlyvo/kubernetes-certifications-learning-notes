@@ -50,8 +50,8 @@ Même principe avec `kubernetes.io/pvc-protection` sur les `PersistentVolumeClai
 
 ## Comment ça marche avec un owner et ses dependents ?
 
-- **Owner** : l'objet parent (ex. un `Deployment`).
-- **Dependents** : les objets qui lui appartiennent (ex. son `ReplicaSet` et ses `Pods`).
+- **Owner** : l'objet parent (exemple : un `Deployment`).
+- **Dependents** : les objets qui lui appartiennent (exemple : son `ReplicaSet` et ses `Pods`).
 
 Le lien est posé **sur le dependent**, dans `metadata.ownerReferences` :
 
