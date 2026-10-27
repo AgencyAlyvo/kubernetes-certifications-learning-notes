@@ -14,33 +14,25 @@ kubectl get pods -l app=nginx    # Pods qui ont le label app=nginx
 
 ## Quels opérateurs ?
 
-| Type | Opérateur | Exemple | Sélectionne les objets qui… |
-|---|---|---|---|
-| equality-based | `=` (ou `==`) | `environment=production` | ont la `key` `environment` avec la `value` `production` |
-| equality-based | `!=` | `tier!=frontend` | ont `tier` ≠ `frontend`, **ou n'ont pas** la `key` `tier` |
-| set-based | `in` | `environment in (production, qa)` | ont `environment` = `production` **ou** `qa` |
-| set-based | `notin` | `tier notin (frontend, backend)` | ont `tier` ≠ `frontend` et ≠ `backend`, **ou n'ont pas** la `key` `tier` |
-| set-based | `key` | `partition` | ont la `key` `partition` (`value` ignorée) |
-| set-based | `!key` | `!partition` | n'ont pas la `key` `partition` |
-
-- Pour combiner plusieurs conditions, on les sépare par `,` : un objet est sélectionné seulement s'il remplit **toutes** les conditions (ET logique). Les deux types se mélangent : `partition in (customerA, customerB),environment!=qa`.
+- equality-based : `=`, `==` (synonymes) et `!=`.
+- set-based : `in`, `notin`, et la `key` seule (`partition`, `!partition`).
+- Pour combiner plusieurs conditions, on les sépare par `,` : un objet est sélectionné seulement s'il remplit **toutes** les conditions (ET logique). Les deux types se mélangent.
 - ⚠️ Pas de OU logique entre conditions. Le seul OU possible est sur les `values`, avec `in`.
 - ⚠️ `!=` et `notin` sélectionnent aussi les objets qui **n'ont pas** la `key`.
 
----
-
-## Comment sélectionner avec kubectl ?
-
 ```bash
-kubectl get pods -l environment=production,tier=frontend    # equality-based, 2 conditions
-kubectl get pods -l 'environment in (production, qa)'       # set-based → entre quotes (parenthèses)
-kubectl get pods -l '!partition'                            # sans la key partition
-kubectl get pods -l app=guestbook -L tier                   # -L affiche un label en colonne
-kubectl delete pods -l app=nginx                            # -l marche avec get, delete, label, logs…
-kubectl label pods -l app=nginx tier=fe                     # ajouter tier=fe à tous les Pods app=nginx
+kubectl get pods -l environment=production                                  # key environment avec la value production
+kubectl get pods -l tier!=frontend                                          # tier ≠ frontend, OU pas de key tier
+kubectl get pods -l environment=production,tier!=frontend                   # production ET pas frontend
+kubectl get pods -l 'environment in (production, qa)'                       # environment = production OU qa (set-based → entre quotes)
+kubectl get pods -l 'tier notin (frontend, backend)'                        # tier ≠ frontend et ≠ backend, OU pas de key tier
+kubectl get pods -l partition                                               # a la key partition (value ignorée)
+kubectl get pods -l '!partition'                                            # n'a pas la key partition
+kubectl get pods -l 'partition in (customerA, customerB),environment!=qa'   # set-based + equality-based
 ```
 
 ---
+
 
 ## Comment un objet sélectionne-t-il ses Pods ?
 
@@ -80,6 +72,19 @@ spec:
 - ⚠️ En YAML : `In` / `NotIn` avec majuscule. Avec `kubectl -l` : `in` / `notin` en minuscules.
 - ⚠️ Les `labels` du `template` doivent satisfaire le `selector`, sinon erreur à la création (`selector does not match template labels`).
 - `values` obligatoire et non vide pour `In` et `NotIn`.
+
+---
+
+## Exemples utiles pour l'examen
+
+```bash
+kubectl get pods -l app=guestbook -L tier                   # -L affiche un label en colonne
+kubectl get pods -A -l app=nginx                            # dans tous les namespaces
+kubectl delete pods -l app=nginx                            # -l marche avec get, delete, label, logs…
+kubectl label pods -l app=nginx tier=fe                     # ajouter tier=fe à tous les Pods app=nginx
+kubectl logs -l app=nginx                                   # logs de tous les Pods app=nginx
+kubectl get pods -l app=nginx --field-selector status.phase=Running   # combinable avec --field-selector
+```
 
 ---
 
