@@ -120,4 +120,4 @@ metadata:
     uid: a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d  # lien vers l'UID du ReplicaSet
 ```
 
-→ voir [owner-references-and-dependents](../object-lifecycle/owner-references-and-dependents.md)
+→ voir [finalizers-owner-and-dependents](../object-lifecycle/finalizers-owner-and-dependents.md)

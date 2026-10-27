@@ -48,15 +48,43 @@ Même principe avec `kubernetes.io/pvc-protection` sur les `PersistentVolumeClai
 
 ---
 
-## Comment ça marche avec un owner reference et ses dependents ?
+## Comment ça marche avec un owner et ses dependents ?
 
-- **Owner Reference** : l'objet parent (ex. un `Deployment`).
-- **Dependents** : les objets qui lui appartiennent (ex. son `ReplicaSet` et ses `Pods`). Chacun pointe vers son owner via le champ `metadata.ownerReferences`.
+- **Owner** : l'objet parent (ex. un `Deployment`).
+- **Dependents** : les objets qui lui appartiennent (ex. son `ReplicaSet` et ses `Pods`).
+
+Le lien est posé **sur le dependent**, dans `metadata.ownerReferences` :
+
+```yaml
+# Pod créé par un ReplicaSet (kubectl get pod <pod> -o yaml)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-7d9f8b6c5d-x2k9p
+  ownerReferences:                                 # posé automatiquement par le controller du ReplicaSet
+  - apiVersion: apps/v1
+    kind: ReplicaSet
+    name: myapp-7d9f8b6c5d                         # name de l'owner
+    uid: a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d      # UID de l'owner
+    controller: true                               # cet owner est le controller du Pod
+    blockOwnerDeletion: true                       # ce Pod peut bloquer la suppression de son owner (foreground)
+```
+
+**`ownerReferences`**
+
+- Pointe vers l'owner avec son `name` et son `UID`.
+- Rempli **automatiquement** pour les objets créés par les `ReplicaSets`, `DaemonSets`, `Deployments`, `Jobs`, et `CronJobs`.
+- Modifiable à la main, mais en pratique on n'en a pas besoin.
+
+**`blockOwnerDeletion`**
+
+- Booléen sur le dependent : `true` → ce dependent peut bloquer la suppression de son owner, en suppression foreground.
+- Mis **automatiquement** à `true` quand c'est un `controller` qui pose l'`ownerReference` (exemple : le `controller` de `Deployment`).
 
 Exemple : `kubectl delete deploy myapp --cascade=foreground`
 
 1. Kubernetes ajoute automatiquement le `finalizer` `foregroundDeletion` sur le `Deployment` → `Terminating`.
-2. Kubernetes supprime les dependents (`ReplicaSet` puis `Pods`), trouvés grâce à leurs `ownerReferences`.
+2. Kubernetes supprime les dependents (`ReplicaSet` puis `Pods`), trouvés grâce à leurs `ownerReferences`, et attend ceux qui ont `blockOwnerDeletion: true`.
 3. Les dependents sont supprimés → Kubernetes retire `foregroundDeletion`.
 4. Le `Deployment` est supprimé.
 
@@ -71,8 +99,6 @@ metadata:
 ```
 
 ⚠️ Si un dependent garde un `finalizer`, l'étape 2 ne se termine jamais → l'owner reste en `Terminating`.
-
-→ voir [owner-references-and-dependents](owner-references-and-dependents.md)
 
 ---
 
