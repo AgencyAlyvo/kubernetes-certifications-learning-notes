@@ -13,7 +13,9 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 
 <br /><br />
 
-## Composants du Control Plane
+## Core Components
+
+### Control Plane Components
 
 - **`kube-apiserver`** : expose l'API HTTP Kubernetes et constitue le point d'entrée du Control Plane. Il reçoit les requêtes des utilisateurs et des composants du cluster, contrôle les opérations sur les ressources et sert d'interface d'accès à `etcd`.
   1. Reçoit les requêtes via l'API Kubernetes et applique les contrôles pertinents, notamment l'authentification, l'autorisation et, pour les écritures concernées, les contrôles d'admission et de validation.
@@ -51,7 +53,7 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 
 <br />
 
-## Composants des Nodes
+### Node Components
 
 - **`kubelet`** : composant chargé de créer et de surveiller les `Pods` qui lui sont assignés. Il cherche à faire converger leur état réel vers l'état souhaité décrit dans leur `PodSpec`.
   1. **Observe les `Pods`** : récupère via le `kube-apiserver` les informations sur les `Pods` assignés à son `Node`. Il prend également en charge les `Static Pods`, dont les spécifications sont définies localement.
