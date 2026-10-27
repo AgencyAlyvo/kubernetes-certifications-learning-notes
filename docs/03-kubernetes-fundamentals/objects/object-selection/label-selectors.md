@@ -2,132 +2,84 @@
 
 ## C'est quoi un label selector ?
 
-- Un `label selector` identifie un **ensemble d'objets** via leurs `labels`.
-- Contrairement aux `names` et aux `UIDs`, les `labels` ne sont pas uniques : plusieurs objets portent les mêmes `labels`, et le `selector` sert à les regrouper. C'est le mécanisme de regroupement de base de Kubernetes.
-- 2 types : **equality-based** et **set-based**.
-- Pour combiner plusieurs conditions, on les sépare par `,` : un objet est sélectionné seulement s'il remplit **toutes** les conditions (ET logique).
-- ⚠️ Pas d'opérateur **OU logique**, sauf sur les `values` avec `in`.
+- Un `label selector` sélectionne des objets selon leurs `labels`.
+- Les `labels` ne sont pas uniques : plusieurs objets portent les mêmes, et le `selector` sert à les regrouper.
+- Utilisable avec `kubectl` (`-l`) **et** dans le YAML des objets (`selector`), par exemple un `Service` qui cible ses `Pods`.
 
-| Type | Opérateurs | Exemple |
-|---|---|---|
-| equality-based | `=`, `==`, `!=` | `environment=production,tier!=frontend` |
-| set-based | `in`, `notin`, `exists` (la `key` seule) | `environment in (production, qa)` |
+```bash
+kubectl get pods -l app=nginx    # Pods qui ont le label app=nginx
+```
 
 ---
 
-## Comment fonctionne un selector equality-based ?
+## Quels opérateurs ?
 
-```text
-environment = production                 # a la key environment avec la value production
-tier != frontend                         # value ≠ frontend, OU n'a pas la key tier
-environment=production,tier!=frontend    # production ET pas frontend
-```
+| Type | Opérateur | Exemple | Sélectionne les objets qui… |
+|---|---|---|---|
+| equality-based | `=` (ou `==`) | `environment=production` | ont la `key` `environment` avec la `value` `production` |
+| equality-based | `!=` | `tier!=frontend` | ont `tier` ≠ `frontend`, **ou n'ont pas** la `key` `tier` |
+| set-based | `in` | `environment in (production, qa)` | ont `environment` = `production` **ou** `qa` |
+| set-based | `notin` | `tier notin (frontend, backend)` | ont `tier` ≠ `frontend` et ≠ `backend`, **ou n'ont pas** la `key` `tier` |
+| set-based | `key` | `partition` | ont la `key` `partition` (`value` ignorée) |
+| set-based | `!key` | `!partition` | n'ont pas la `key` `partition` |
 
-- `=` et `==` sont synonymes.
-- ⚠️ `!=` sélectionne aussi les objets qui **n'ont pas** la `key`.
-- Un objet qui a des `labels` en plus est quand même sélectionné.
-
----
-
-## Comment fonctionne un selector set-based ?
-
-```text
-environment in (production, qa)     # value = production OU qa
-tier notin (frontend, backend)      # value ≠ frontend ET ≠ backend, OU n'a pas la key tier
-partition                           # a la key partition (value ignorée)
-!partition                          # n'a pas la key partition
-partition,environment notin (qa)    # a la key partition ET environment ≠ qa
-```
-
-- Plus expressif que equality-based : `environment=production` ≡ `environment in (production)`, et `!=` ≡ `notin`.
-- Mixable avec equality-based : `partition in (customerA, customerB),environment!=qa`.
+- Pour combiner plusieurs conditions, on les sépare par `,` : un objet est sélectionné seulement s'il remplit **toutes** les conditions (ET logique). Les deux types se mélangent : `partition in (customerA, customerB),environment!=qa`.
+- ⚠️ Pas de OU logique entre conditions. Le seul OU possible est sur les `values`, avec `in`.
+- ⚠️ `!=` et `notin` sélectionnent aussi les objets qui **n'ont pas** la `key`.
 
 ---
 
 ## Comment sélectionner avec kubectl ?
 
-Option `-l` (= `--selector`), avec les deux types :
-
 ```bash
-kubectl get pods -l environment=production,tier=frontend           # equality-based
-kubectl get pods -l 'environment in (production, qa)'              # set-based → entre quotes (parenthèses)
-kubectl get pods -l 'environment,environment notin (frontend)'     # a la key ET value ≠ frontend
-kubectl get pods -l app=guestbook,role=replica -L tier             # -L affiche un label en colonne
-kubectl label pods -l app=nginx tier=fe                            # -l marche aussi avec label, delete, logs…
-kubectl delete pods -l app=nginx
+kubectl get pods -l environment=production,tier=frontend    # equality-based, 2 conditions
+kubectl get pods -l 'environment in (production, qa)'       # set-based → entre quotes (parenthèses)
+kubectl get pods -l '!partition'                            # sans la key partition
+kubectl get pods -l app=guestbook -L tier                   # -L affiche un label en colonne
+kubectl delete pods -l app=nginx                            # -l marche avec get, delete, label, logs…
+kubectl label pods -l app=nginx tier=fe                     # ajouter tier=fe à tous les Pods app=nginx
 ```
-
-Côté API, le `selector` passe en query parameter : `?labelSelector=environment%3Dproduction,tier%3Dfrontend`.
 
 ---
 
-## Comment un objet sélectionne-t-il d'autres objets ?
+## Comment un objet sélectionne-t-il ses Pods ?
 
-Certains objets ont un champ `selector` dans leur YAML pour désigner les objets qu'ils gèrent (ex. les `Pods` d'un `Service` ou d'un `Deployment`).
+Certains objets ont un champ `selector` dans leur YAML pour désigner les `Pods` qu'ils gèrent.
 
-### `Service` → equality-based uniquement
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis
-spec:
-  selector:              # Pods ciblés par le Service (map simple)
-    component: redis     # ≡ component=redis
-  ports:
-  - port: 6379
-```
-
-### `Deployment`, `ReplicaSet`, `Job`, `DaemonSet` → set-based aussi
+| Objet | Champ | Opérateurs |
+|---|---|---|
+| `Service` | `spec.selector` (map simple) | equality-based uniquement |
+| `Deployment`, `ReplicaSet`, `DaemonSet`, `Job` | `spec.selector.matchLabels` + `matchExpressions` | set-based aussi : `In`, `NotIn`, `Exists`, `DoesNotExist` |
+| `Pod` | `spec.nodeSelector` (map simple) | equality-based, pour choisir une `node` → voir [node-selector](../../../05-scheduling/nodes/node-selector.md) |
 
 ```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: redis
+# Service → map simple
 spec:
   selector:
-    matchLabels:                # map {key: value} ≡ { key: component, operator: In, values: [redis] }
-      component: redis
-    matchExpressions:           # liste de conditions
+    component: redis          # ≡ component=redis
+```
+
+```yaml
+# Deployment → matchLabels + matchExpressions
+spec:
+  selector:
+    matchLabels:
+      component: redis        # ≡ { key: component, operator: In, values: [redis] }
+    matchExpressions:
     - { key: tier, operator: In, values: [cache] }
     - { key: environment, operator: NotIn, values: [dev] }
   template:
     metadata:
-      labels:                   # doivent satisfaire le selector
+      labels:                 # doivent satisfaire le selector
         component: redis
         tier: cache
         environment: production
-    spec:
-      containers:
-      - name: redis
-        image: redis
 ```
 
-- Opérateurs de `matchExpressions` : `In`, `NotIn`, `Exists`, `DoesNotExist`.
-- ⚠️ En YAML : `In` / `NotIn` avec majuscule. Avec `kubectl -l` : `in` / `notin` en minuscules.
-- `values` obligatoire et non vide pour `In` et `NotIn`.
 - Un `Pod` est sélectionné seulement s'il remplit **toutes** les conditions de `matchLabels` **et** de `matchExpressions` (ET logique).
+- ⚠️ En YAML : `In` / `NotIn` avec majuscule. Avec `kubectl -l` : `in` / `notin` en minuscules.
 - ⚠️ Les `labels` du `template` doivent satisfaire le `selector`, sinon erreur à la création (`selector does not match template labels`).
-- ⚠️ Deux `ReplicaSets` d'un même `namespace` ne doivent pas avoir des `selectors` qui se chevauchent, sinon le `controller` ne sait plus combien de replicas garder.
-
-### `nodeSelector` → choisir les `nodes` d'un `Pod`
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: cuda-test
-spec:
-  nodeSelector:                       # equality-based : le Pod va sur une node qui a ce label
-    accelerator: nvidia-tesla-p100
-  containers:
-  - name: cuda-test
-    image: "registry.k8s.io/cuda-vector-add:v0.1"
-```
-
-→ voir [node-selector](../../../05-scheduling/nodes/node-selector.md)
+- `values` obligatoire et non vide pour `In` et `NotIn`.
 
 ---
 
@@ -146,9 +98,8 @@ spec:
 
 ## Résumé
 
-- `label selector` = sélectionne un ensemble d'objets via leurs `labels`. `,` = ET, pas de OU.
-- equality-based : `=`, `==`, `!=`. set-based : `in`, `notin`, `key`, `!key` (plus expressif).
-- `!=` et `notin` sélectionnent aussi les objets sans la `key`.
+- `label selector` = sélectionne des objets via leurs `labels`. `,` = ET, pas de OU entre conditions.
+- equality-based : `=`, `!=`. set-based : `in`, `notin`, `key`, `!key`. `!=` et `notin` prennent aussi les objets sans la `key`.
 - `kubectl get pods -l key=value`, set-based entre quotes : `-l 'key in (a, b)'`.
-- `Service` → `selector` map simple (equality). `Deployment`, `ReplicaSet`, `Job`, `DaemonSet` → `matchLabels` + `matchExpressions` (`In`, `NotIn`, `Exists`, `DoesNotExist`).
+- `Service` → `selector` map simple. `Deployment`, `ReplicaSet`, `DaemonSet`, `Job` → `matchLabels` + `matchExpressions` (`In`, `NotIn`, `Exists`, `DoesNotExist`).
 - Les `labels` du `template` doivent satisfaire le `selector`.

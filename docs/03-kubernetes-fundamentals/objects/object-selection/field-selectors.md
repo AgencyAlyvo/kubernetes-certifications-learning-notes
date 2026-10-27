@@ -3,7 +3,7 @@
 ## C'est quoi un field selector ?
 
 - Un `field selector` sélectionne des objets selon la `value` d'un ou plusieurs **champs** de la ressource (`metadata.name`, `status.phase`…), et non selon leurs `labels`.
-- Utilisable uniquement avec `kubectl` / l'API, pas dans le YAML d'un objet.
+- Utilisable avec `kubectl` (`--field-selector`) et l'API, mais **pas** dans le YAML d'un objet (contrairement au `label selector`).
 
 ```bash
 kubectl get pods --field-selector status.phase=Running    # Pods dont le champ status.phase vaut Running
