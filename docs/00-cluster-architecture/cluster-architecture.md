@@ -18,7 +18,7 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 ### Control Plane Components
 
 - **`kube-apiserver`** : expose l'API HTTP Kubernetes et constitue le point d'entrée du Control Plane. Il reçoit les requêtes des utilisateurs et des composants du cluster, contrôle les opérations sur les ressources et sert d'interface d'accès à `etcd`.
-  1. Reçoit les requêtes via l'API Kubernetes et applique les contrôles pertinents, notamment l'authentification, l'autorisation et, pour les écritures concernées, les contrôles d'admission et de validation.
+  1. Reçoit les requêtes via l'API Kubernetes et applique les contrôles dans l'ordre : **authentification** → **autorisation** → **admission** (`mutating` puis `validating`, pour les écritures).
   2. Lit les données du cluster ou, pour les écritures acceptées, enregistre les modifications dans `etcd`.
   3. Renvoie les résultats aux clients et expose des mécanismes d'observation, notamment les `watch`, permettant aux composants autorisés de suivre les changements des ressources.
 
@@ -30,7 +30,7 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 - **`kube-scheduler`** : attribue les `Pods` qui n'ont pas encore de `Node` assigné à des nœuds appropriés.
   1. Observe via le `kube-apiserver` les `Pods` en attente d'affectation.
   2. Identifie les `Nodes` compatibles avec les besoins en ressources, les contraintes de placement et les règles de planification, puis évalue les candidats pour sélectionner un `Node`.
-  3. Enregistre l'affectation du `Pod` au `Node` sélectionné via l'API du `kube-apiserver`.
+  3. Enregistre l'affectation via l'API du `kube-apiserver`, en écrivant le `Node` sélectionné dans le champ `spec.nodeName` du `Pod` (via un objet `Binding`).
   4. Le `kube-apiserver` traite la requête et persiste l'affectation dans `etcd`.
   5. Le `kubelet` du `Node` sélectionné observe l'affectation via l'API et prend en charge l'exécution du `Pod`.
 
@@ -60,7 +60,7 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
   2. **Synchronise leur état** : sa boucle de synchronisation (*Sync Loop*) traite les travaux associés aux `Pods`. Les *Pod workers* exécutent la logique nécessaire pour rapprocher leur état réel de l'état souhaité.
   3. **Prépare leur exécution** : coordonne les opérations nécessaires, notamment le montage des volumes et la mise à disposition des configurations et des secrets requis par les containers.
   4. **Pilote le `Container runtime`** : utilise la `Container Runtime Interface` (`CRI`) pour demander au runtime de créer le *`Pod sandbox`*, puis de créer et de démarrer les containers définis dans le `PodSpec`. Il lui demande également d'arrêter ou de supprimer les containers lorsque nécessaire.
-  5. **Suit l'état des containers** : le `PLEG` (*Pod Lifecycle Event Generator*) interroge périodiquement le runtime pour détecter les changements d'état des containers et génère des événements utilisés par le `kubelet` pour déclencher des traitements de synchronisation. D'autres événements, notamment les changements observés via l'API, peuvent également déclencher ces traitements.
+  5. **Suit l'état des containers** : le `PLEG` (*Pod Lifecycle Event Generator*) interroge périodiquement le `Container runtime` pour détecter les changements d'état des containers et génère des événements utilisés par le `kubelet` pour déclencher des traitements de synchronisation. D'autres événements, notamment les changements observés via l'API, peuvent également déclencher ces traitements.
   6. **Exécute les probes configurées** : exécute les `startupProbe`, `readinessProbe` et `livenessProbe` définies dans les spécifications des containers. Leurs résultats permettent notamment de déterminer si un conteneur a terminé son démarrage, s'il est prêt à recevoir du trafic ou s'il doit être redémarré.
   7. **Actualise l'état du cluster** : met à jour l'état des `Pods` et les informations relatives à son `Node`, puis publie les mises à jour nécessaires via le `kube-apiserver`.
 
@@ -90,7 +90,7 @@ Les composants du **Control Plane** peuvent être déployés de plusieurs maniè
 
 - **Déploiement traditionnel** : Les composants du **Control Plane** s'exécutent directement sur des machines dédiées ou des machines virtuelles, souvent gérées en tant que services `systemd`.
 
-- **`Static Pods`** : Les composants du **Control Plane** sont déployés sous forme de `pods static`, gérés par le `kubelet` sur des **Nodes** spécifiques. Il s'agit d'une approche courante utilisée par des outils comme `kubeadm`.
+- **`Static Pods`** : Les composants du **Control Plane** sont déployés sous forme de `Static Pods`, gérés par le `kubelet` sur des **Nodes** spécifiques. Il s'agit d'une approche courante utilisée par des outils comme `kubeadm`.
 
 - **Déploiement self-hosted** : Le **Control Plane** s'exécute sous forme de `Pods` au sein du cluster Kubernetes lui-même, gérés par des `Deployments` et des `StatefulSets` ou d'autres primitives Kubernetes.
 
