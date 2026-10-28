@@ -49,7 +49,7 @@ kubectl get pods --field-selector=status.phase!=Running,spec.restartPolicy=Alway
 ## Exemples utiles pour l'examen
 
 ```bash
-kubectl get pods -A --field-selector spec.nodeName=node01                     # Pods qui tournent sur une node
+kubectl get pods -A --field-selector spec.nodeName=node01                     # Pods qui tournent sur un node
 kubectl get pods -A --field-selector status.phase!=Running                    # Pods qui ne sont pas Running
 kubectl get events --field-selector type=Warning                              # Events Warning seulement
 kubectl get events --field-selector involvedObject.name=mypod                 # Events d'un objet précis

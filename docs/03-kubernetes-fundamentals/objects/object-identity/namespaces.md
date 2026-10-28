@@ -92,7 +92,7 @@ Kubernetes crée automatiquement ces 4 `namespaces` dans **tout cluster**, dès 
 | `default` | Pour démarrer sans créer de `namespace` |
 | `kube-system` | Objets créés par le système Kubernetes |
 | `kube-public` | Lisible par tous, même non authentifiés (convention, pas obligation) |
-| `kube-node-lease` | Objets `Lease` des `nodes` → heartbeats du `kubelet` pour détecter une `node` en panne |
+| `kube-node-lease` | Objets `Lease` des `nodes` → heartbeats du `kubelet` pour détecter un `node` en panne |
 
 ---
 

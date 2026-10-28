@@ -42,7 +42,7 @@ Certains objets ont un champ `selector` dans leur YAML pour désigner les `Pods`
 |---|---|---|
 | `Service` | `spec.selector` (map simple) | equality-based uniquement |
 | `Deployment`, `ReplicaSet`, `DaemonSet`, `Job` | `spec.selector.matchLabels` + `matchExpressions` | set-based aussi : `In`, `NotIn`, `Exists`, `DoesNotExist` |
-| `Pod` | `spec.nodeSelector` (map simple) | equality-based, pour choisir une `node` → voir [node-selector](../../../05-scheduling/nodes/node-selector.md) |
+| `Pod` | `spec.nodeSelector` (map simple) | equality-based, pour choisir un `node` → voir [node-selector](../../../05-scheduling/nodes/node-selector.md) |
 
 ```yaml
 # Service → map simple
