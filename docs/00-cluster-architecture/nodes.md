@@ -34,14 +34,14 @@ metadata:
 
 Options du `kubelet` pour l'auto-enregistrement :
 
-| Option | Rôle |
-|---|---|
-| `--kubeconfig` | Identifiants pour s'authentifier auprès de l'API server |
-| `--register-node` | S'enregistrer automatiquement (`true` par défaut) |
-| `--register-with-taints` | Enregistrer le `Node` avec des taints `<key>=<value>:<effect>` |
-| `--node-labels` | `Labels` posés à l'enregistrement |
-| `--node-ip` | IP du `Node` à utiliser (sinon l'IPv4 par défaut) |
-| `--node-status-update-frequency` | Fréquence d'envoi du statut à l'API server |
+| Option | Rôle | Exemple |
+|---|---|---|
+| `--kubeconfig` | Fichier avec le certificat client du `Node`, pour s'authentifier auprès de l'API server | `/etc/kubernetes/kubelet.conf` |
+| `--register-node` | Le `kubelet` crée lui-même son objet `Node` au démarrage | `true` (défaut) |
+| `--register-with-taints` | Taints posés dès l'enregistrement, pour réserver le `Node` aux `Pods` qui ont la toleration | `gpu=true:NoSchedule` |
+| `--node-labels` | `Labels` posés dès l'enregistrement, pour un `nodeSelector` (ignorés si changés après) | `disktype=ssd` |
+| `--node-ip` | IP déclarée dans `status.addresses`, utilisée par l'API server pour joindre le `Node` | `10.0.0.11` |
+| `--node-status-update-frequency` | Intervalle d'envoi du statut à l'API server (heartbeat) | `10s` (défaut) |
 
 - Par sécurité, le `kubelet` d'un `Node` ne peut modifier **que son propre** objet `Node`, pas ceux des autres.
 
