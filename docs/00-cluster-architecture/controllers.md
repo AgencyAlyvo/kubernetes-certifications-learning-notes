@@ -4,6 +4,7 @@
 
 - Un `Controller` est une **boucle de contrôle** (control loop) : une boucle sans fin qui observe l'état du cluster et fait ou demande des changements pour rapprocher l'**état réel** de l'**état désiré**.
 - Les `Controllers` intégrés à Kubernetes (built-in) tournent tous dans un seul composant du `Control Plane` : le **`kube-controller-manager`**.
+- Les `Controllers` custom (ingress controllers, cert-manager, operators, ou les tiens) tournent **hors** du `Control Plane`, en général comme des `Pods` dans le cluster.
 
 ```text
 état désiré (spec)  ──▶  Controller  ──▶  actions  ──▶  état réel
