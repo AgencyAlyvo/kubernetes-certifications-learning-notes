@@ -36,7 +36,7 @@ Options du `kubelet` pour l'auto-enregistrement :
 
 | Option | Rôle | Exemple |
 |---|---|---|
-| `--kubeconfig` | Fichier avec le certificat client du `Node`, pour s'authentifier auprès de l'API server | `/etc/kubernetes/kubelet.conf` |
+| `--kubeconfig` | Chemin du fichier kubeconfig du `kubelet` : adresse de l'API server + identifiants pour s'y authentifier | `/etc/kubernetes/kubelet.conf` |
 | `--register-node` | Le `kubelet` crée lui-même son objet `Node` au démarrage | `true` (défaut) |
 | `--register-with-taints` | Taints posés dès l'enregistrement, pour réserver le `Node` aux `Pods` qui ont la toleration | `gpu=true:NoSchedule` |
 | `--node-labels` | `Labels` posés dès l'enregistrement, pour un `nodeSelector` (ignorés si changés après) | `disktype=ssd` |
