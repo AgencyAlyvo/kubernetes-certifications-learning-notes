@@ -50,7 +50,7 @@ kind: Deployment
 
 ## Comment fonctionnent les versions d'API ?
 
-- Les versions d'une ressource (`v1beta1`, `v1`…) sont des **représentations des mêmes données** : l'API server convertit automatiquement. Un objet créé en `v1beta1` peut être lu ou modifié en `v1`, jusqu'au retrait de `v1beta1`.
+- Les versions d'une ressource (`v1beta1`, `v1`…) sont des **représentations des mêmes données** : l'API server (`kube-apiserver`) convertit automatiquement. Un objet créé en `v1beta1` peut être lu ou modifié en `v1`, jusqu'au retrait de `v1beta1`.
 
 | Niveau | `apiVersion` | Stabilité |
 |---|---|---|
@@ -76,7 +76,7 @@ kubectl api-resources                           # ressources (name, shortnames, 
 kubectl api-versions                            # groupes / versions servis par le cluster
 kubectl explain pod.spec.containers             # champs d'une ressource (schéma OpenAPI)
 kubectl explain deployment --recursive          # tous les champs
-kubectl apply -f pod.yaml --dry-run=server      # validation complète par l'API server, sans créer l'objet
+kubectl apply -f pod.yaml --dry-run=server      # validation complète par l'API server (kube-apiserver), sans créer l'objet
 ```
 
 ---

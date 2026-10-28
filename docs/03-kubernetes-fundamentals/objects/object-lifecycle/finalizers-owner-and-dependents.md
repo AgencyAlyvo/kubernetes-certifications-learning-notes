@@ -17,7 +17,7 @@ metadata:
 
 ## Comment fonctionnent les finalizers ?
 
-1. `kubectl delete` → l'API server remplit `metadata.deletionTimestamp` et renvoie `202` (Accepted).
+1. `kubectl delete` → l'API server (`kube-apiserver`) remplit `metadata.deletionTimestamp` et renvoie `202` (Accepted).
 2. L'objet passe en `Terminating` : il n'est pas supprimé tant que `metadata.finalizers` n'est pas vide.
 3. Le `controller` détecte le `deletionTimestamp` et fait son nettoyage.
 4. Le `controller` retire sa clé de `metadata.finalizers`.

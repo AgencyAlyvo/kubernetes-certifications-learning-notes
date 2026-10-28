@@ -16,7 +16,7 @@ kubectl get nodes
 
 ## Comment un Node rejoint-il le cluster ?
 
-Pour que Kubernetes connaisse une machine, il faut un objet `Node` dans l'API server. Il est créé de 2 façons :
+Pour que Kubernetes connaisse une machine, il faut un objet `Node` dans l'API server (`kube-apiserver`). Il est créé de 2 façons :
 
 - **Par le `kubelet` lui-même**, au démarrage (`--register-node=true`, par défaut). C'est ce que fait `kubeadm join`.
 - **À la main**, avec `kubectl` (`kubelet` lancé avec `--register-node=false`). Rare.
@@ -36,7 +36,7 @@ Options du `kubelet` pour l'auto-enregistrement :
 
 | Option | Rôle | Exemple |
 |---|---|---|
-| `--kubeconfig` | Chemin du fichier kubeconfig du `kubelet` : adresse de l'API server + identifiants pour s'y authentifier | `/etc/kubernetes/kubelet.conf` |
+| `--kubeconfig` | Chemin du fichier kubeconfig du `kubelet` : adresse de l'API server (`kube-apiserver`) + identifiants pour s'y authentifier | `/etc/kubernetes/kubelet.conf` |
 | `--register-node` | Le `kubelet` crée lui-même son objet `Node` au démarrage | `true` (défaut) |
 | `--register-with-taints` | Taints posés dès l'enregistrement, pour réserver le `Node` aux `Pods` qui ont la toleration | `gpu=true:NoSchedule` |
 | `--node-labels` | `Labels` posés dès l'enregistrement, pour un `nodeSelector` (ignorés si changés après) | `disktype=ssd` |
