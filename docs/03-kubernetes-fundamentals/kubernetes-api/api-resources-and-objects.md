@@ -18,7 +18,6 @@ kubectl get pods  →  GET /api/v1/namespaces/default/pods  →  kube-apiserver 
 |---|---|---|
 | **Ressource** : un type d'objet exposé par l'API | `pods` | dans l'URL `/api/v1/namespaces/default/pods` et dans `kubectl get pods` |
 | **Objet** : une instance d'une ressource, stockée dans `etcd` | le `Pod` `nginx` | dans l'URL `/api/v1/namespaces/default/pods/nginx` et dans `kubectl get pod nginx` |
-| **Kind** : le nom du type dans le YAML | `Pod` | dans `kind: Pod` |
 
 ```bash
 kubectl api-resources                         # liste toutes les ressources du cluster
