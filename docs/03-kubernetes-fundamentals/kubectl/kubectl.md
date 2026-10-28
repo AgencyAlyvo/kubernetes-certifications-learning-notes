@@ -13,7 +13,7 @@ kubectl get pods  →  requête HTTP  →  kube-apiserver  →  etcd  →  résu
 
 ---
 
-## Comment kubectl trouve-t-il le cluster ? (kubeconfig)
+## Comment kubectl trouve-t-il le cluster ? (KUBECONFIG)
 
 `kubectl` lit un fichier **KUBECONFIG** qui contient l'adresse du cluster et les identifiants pour s'y connecter :
 
@@ -59,10 +59,6 @@ contexts:
     user: corentin
 current-context: dev-corentin       # contexte actif : utilisé par toutes les commandes kubectl
 ```
-
-- Dans un `Pod` (ex. pipeline CI/CD), `kubectl` peut se passer de kubeconfig et utiliser le token du `ServiceAccount` monté dans le `Pod`.
-
-→ voir [kubeconfig](../../11-security/authentication/kubeconfig.md)
 
 ---
 
