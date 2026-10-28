@@ -34,7 +34,7 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
   4. Le `kube-apiserver` traite la requête et persiste l'affectation dans `etcd`.
   5. Le `kubelet` du `Node` sélectionné observe l'affectation via l'API et prend en charge l'exécution du `Pod`.
 
-- **`kube-controller-manager`** : exécute les `Controllers` Kubernetes, qui rapprochent l'état réel du cluster de l'état désiré.
+- **`kube-controller-manager`** : exécute les `Controllers` Kubernetes, qui rapprochent l'état réel du cluster de l'état désiré. Logiquement, chaque `Controller` est un processus distinct, mais ils sont tous compilés dans un seul binaire et tournent dans un seul processus.
   1. Les contrôleurs observent les ressources et leur état via le `kube-apiserver`, notamment au moyen de mécanismes `watch`.
   2. Ils comparent l'état observé à l'état désiré défini par les ressources Kubernetes.
   3. Lorsqu'un écart nécessite une action, ils effectuent les opérations relevant de leur responsabilité, par exemple en créant, modifiant ou supprimant des ressources via l'API du `kube-apiserver`.
@@ -55,11 +55,11 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 
 ### Node Components
 
-- **`kubelet`** : composant chargé de créer et de surveiller les `Pods` qui lui sont assignés. Il cherche à faire converger leur état réel vers l'état souhaité décrit dans leur `PodSpec`.
+- **`kubelet`** : agent qui tourne sur chaque `Node`. Il s'assure que les containers décrits dans les `PodSpecs` des `Pods` assignés à son `Node` sont en cours d'exécution et en bonne santé, en faisant converger leur état réel vers l'état souhaité. Il n'agit jamais directement sur les containers : il **demande** au `Container runtime` via la `CRI`, et c'est le runtime qui exécute.
   1. **Observe les `Pods`** : récupère via le `kube-apiserver` les informations sur les `Pods` assignés à son `Node`. Il prend également en charge les `Static Pods`, dont les spécifications sont définies localement.
   2. **Synchronise leur état** : sa boucle de synchronisation (*Sync Loop*) traite les travaux associés aux `Pods`. Les *Pod workers* exécutent la logique nécessaire pour rapprocher leur état réel de l'état souhaité.
   3. **Prépare leur exécution** : coordonne les opérations nécessaires, notamment le montage des volumes et la mise à disposition des configurations et des secrets requis par les containers.
-  4. **Pilote le `Container runtime`** : utilise la `Container Runtime Interface` (`CRI`) pour demander au runtime de créer le *`Pod sandbox`*, puis de créer et de démarrer les containers définis dans le `PodSpec`. Il lui demande également d'arrêter ou de supprimer les containers lorsque nécessaire.
+  4. **Pilote le `Container runtime`** : utilise la `Container Runtime Interface` (`CRI`) pour demander au runtime de télécharger les images, de créer le *`Pod sandbox`*, puis de créer et de démarrer les containers définis dans le `PodSpec`. Il lui demande également d'arrêter, de redémarrer (selon la `restartPolicy`) ou de supprimer les containers lorsque nécessaire.
   5. **Suit l'état des containers** : le `PLEG` (*Pod Lifecycle Event Generator*) interroge périodiquement le `Container runtime` pour détecter les changements d'état des containers et génère des événements utilisés par le `kubelet` pour déclencher des traitements de synchronisation. D'autres événements, notamment les changements observés via l'API, peuvent également déclencher ces traitements.
   6. **Exécute les probes configurées** : exécute les `startupProbe`, `readinessProbe` et `livenessProbe` définies dans les spécifications des containers. Leurs résultats permettent notamment de déterminer si un conteneur a terminé son démarrage, s'il est prêt à recevoir du trafic ou s'il doit être redémarré.
   7. **Actualise l'état du cluster** : met à jour l'état des `Pods` et les informations relatives à son `Node`, puis publie les mises à jour nécessaires via le `kube-apiserver`.
@@ -67,14 +67,14 @@ Un cluster Kubernetes comprend un **Control Plane**, qui gère le cluster, et un
 
 - **`kube-proxy` (optionnel)** : composant réseau qui implémente une partie du comportement des `Services`.
   1. Observe via le `kube-apiserver` les ressources nécessaires au fonctionnement des `Services`, notamment les `Services` et leurs points de terminaison.
-  2. Configure ou met à jour les règles réseau locales pour diriger le trafic vers les bons `Pods`.
+  2. Configure ou met à jour les règles réseau locales pour diriger le trafic vers les bons `Pods`, en utilisant la couche de filtrage de paquets de l'OS (`iptables`, `IPVS` ou `nftables`). S'il n'y en a pas, `kube-proxy` relaie le trafic lui-même.
   3. Maintient ces règles en fonction des changements des `Services` et de leurs points de terminaison.
   
   Si une implémentation réseau fournit un comportement équivalent pour les `Services`, `kube-proxy` n'est pas nécessaire.
 
-- **`Container runtime`** : composant chargé de gérer l'environnement d'exécution des `Pods` et le cycle de vie de leurs containers, par exemple `containerd` ou `CRI-O`.
+- **`Container runtime`** : composant chargé de l'exécution et du cycle de vie des containers, par exemple `containerd` ou `CRI-O` (toute implémentation de la `CRI`). C'est lui qui agit réellement sur les containers, sur demande du `kubelet`.
   1. Reçoit les demandes du `kubelet` via la `Container Runtime Interface` (`CRI`).
-  2. **Gère l'environnement d'exécution** : crée le *`Pod sandbox`*, puis crée, démarre, arrête et supprime les containers du `Pod` selon les demandes du `kubelet` via la `CRI`.
+  2. **Gère les images et les containers** : télécharge les images, crée le *`Pod sandbox`*, puis crée, démarre, arrête et supprime les containers du `Pod` selon les demandes du `kubelet`. Pour créer le processus du container (namespaces, cgroups), il s'appuie sur un runtime bas niveau comme `runc`.
   3. Fournit au `kubelet` les informations sur l'état des containers et du *`Pod sandbox`*, que celui-ci utilise, avec d'autres informations, pour suivre et actualiser l'état des `Pods`.
 
 <br /><br />

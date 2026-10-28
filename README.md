@@ -1,4 +1,4 @@
-# Kubernetes Certifications — Notes & Synthèses
+# Kubernetes Certifications — Notes & Synthèses - Documentation faite sur Kubernetes v1.37
 
 Ce dépôt regroupe mes notes, synthèses techniques, commandes, exercices pratiques et révisions pour les certifications Kubernetes et Cloud Native de la CNCF.
 
