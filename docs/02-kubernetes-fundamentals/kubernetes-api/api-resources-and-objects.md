@@ -65,7 +65,7 @@ kind: Deployment
 - `CustomResourceDefinition` : ajouter un nouveau type de ressource, servi par le `kube-apiserver`.
 - Aggregation layer : brancher un API server supplémentaire (exemple : `metrics-server` pour `metrics.k8s.io`).
 
-→ voir [CustomResourceDefinition](../../18-extending-kubernetes/custom-resource-definitions-crd.md)
+→ voir [CustomResourceDefinition](../../12-extending-kubernetes/custom-resource-definitions-crd.md)
 
 ---
 

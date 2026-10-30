@@ -73,4 +73,4 @@ Ce que fait le `ReplicaSet` controller, en boucle :
 | **Built-in** | dans le `kube-controller-manager` (un seul processus, dans le `Control Plane`) | `Deployment`, `ReplicaSet`, `Job`, `Node`, `EndpointSlice`, `ServiceAccount`..etc |
 | **Externes / Custom** | hors du `Control Plane`, en général comme des `Pods` dans le cluster | ingress controllers, cert-manager, operators, tes propres `Controllers`..etc |
 
-→ voir [custom-controllers](../18-extending-kubernetes/custom-controllers.md)
+→ voir [custom-controllers](../12-extending-kubernetes/custom-controllers.md)
