@@ -12,7 +12,11 @@ kubectl get nodes
 # node01   Ready    <none>          10d   v1.35.0
 ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Comment un Node rejoint-il le cluster ?
 
@@ -45,7 +49,11 @@ Options du `kubelet` pour l'auto-enregistrement :
 
 - Par sécurité, le `kubelet` d'un `Node` ne peut modifier **que son propre** objet `Node`, pas ceux des autres.
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Comment administrer un Node ?
 
@@ -71,7 +79,11 @@ kubectl drain node01 --ignore-daemonsets
 kubectl describe node node01
 ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Résumé
 

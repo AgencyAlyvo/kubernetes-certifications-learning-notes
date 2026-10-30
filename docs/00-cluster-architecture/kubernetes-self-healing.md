@@ -5,7 +5,11 @@
 - Kubernetes répare tout seul les pannes courantes : il redémarre les containers qui échouent, replanifie les `Pods` quand un `Node` tombe, et maintient en permanence l'**état désiré**.
 - Il n'y a pas de composant « self-healing » : ce sont les `Controllers` du `kube-controller-manager` et le `kubelet` de chaque `Node` qui, chacun dans leur domaine, comparent en boucle l'état réel à l'état désiré et corrigent l'écart.
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Qui répare quoi ?
 
@@ -19,7 +23,11 @@
 | Le `Node` d'un `Pod` avec volume tombe | `PersistentVolume` controller (`kube-controller-manager`) | détache le volume et le rattache au nouveau `Pod` sur un autre `Node` |
 | Un `Pod` derrière un `Service` n'est plus prêt | `EndpointSlice` controller (`kube-controller-manager`) | le retire des endpoints du `Service` : le trafic ne va qu'aux `Pods` sains |
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Ce que Kubernetes ne répare pas
 

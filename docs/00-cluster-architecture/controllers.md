@@ -23,7 +23,11 @@ Exemples de certains `Controllers` built-in :
 | `EndpointSlice` controller | les `Services` et les `Pods` | la liste des `Pods` derrière chaque `Service` est à jour |
 | `ServiceAccount` controller | les `Namespaces` | chaque nouveau `namespace` a un `ServiceAccount` `default` |
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Comment un controller agit-il ?
 
@@ -56,7 +60,11 @@ Ce que fait le `ReplicaSet` controller, en boucle :
 | 4. Exécute | `kube-scheduler`, `kubelet` | le scheduler choisit un `Node`, le `kubelet` de ce `Node` démarre le `Pod` |
 | 5. Met à jour | `ReplicaSet` controller | écrit `status.replicas: 3` dans le `ReplicaSet` |
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Où tournent les controllers ?
 

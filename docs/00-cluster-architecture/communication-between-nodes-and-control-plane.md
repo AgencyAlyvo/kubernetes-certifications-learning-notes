@@ -9,7 +9,11 @@ Kubernetes suit un modèle **hub-and-spoke (en étoile)** : tout passe par l'API
 | `Node` → `Control Plane` | `kubelet` et `Pods` → `kube-apiserver` | HTTPS, port 6443 (ou 443) | toutes les requêtes à l'API Kubernetes |
 | `Control Plane` → `Node` | `kube-apiserver` → `kubelet` | HTTPS, port 10250 | `logs`, `exec`, `port-forward` |
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Node → Control Plane (sécurisé par défaut)
 
@@ -28,7 +32,11 @@ Kubernetes suit un modèle **hub-and-spoke (en étoile)** : tout passe par l'API
     automountServiceAccountToken: false    # pas de token dans le Pod
   ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Control Plane → Node (à sécuriser)
 
@@ -91,7 +99,11 @@ Le `kube-apiserver` appelle l'API du `kubelet` (port `10250`) pour :
    curl -sk https://<ip-du-node>:10250/pods    # doit renvoyer "Unauthorized"
    ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Résumé
 

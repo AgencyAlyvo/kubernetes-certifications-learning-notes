@@ -12,7 +12,11 @@ spec:
     image: registry.example.com:5000/shop/web:1.4.2    # registry[:port]/nom:tag
 ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Comment est composé le nom d'une image ?
 
@@ -36,7 +40,11 @@ registry.k8s.io/pause:3.5@sha256:1ff6…    → tag + digest : seul le digest co
 - ⚠️ En prod, pas de `:latest` : impossible de savoir quelle version tourne, et impossible de rollback proprement. Utiliser un tag précis (`v1.42.0`) ou un digest.
 - CKS : référencer les images **par digest** garantit que le code qui tourne est exactement celui attendu, même si le registry change ce que pointe un tag.
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## C'est quoi l'imagePullPolicy ?
 
@@ -56,7 +64,11 @@ spec:
     imagePullPolicy: Always    # pull à chaque démarrage du container
 ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Quelle valeur par défaut si l'imagePullPolicy n'est pas spécifiée ?
 
@@ -70,7 +82,11 @@ Si le champ est absent, Kubernetes le remplit **à la création** de l'objet, se
 
 - ⚠️ Cette valeur n'est pas recalculée si on change l'image plus tard : passer un `Deployment` de `web:1.0` à `web:latest` ne change pas la policy, il faut la modifier soi-même.
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Pourquoi un Pod est-il en ImagePullBackOff ?
 
@@ -85,7 +101,11 @@ kubectl get pods
 kubectl describe pod web # section Events : "Failed to pull image ... : not found" / "unauthorized"
 ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Comment utiliser un registry privé ?
 

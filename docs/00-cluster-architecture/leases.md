@@ -6,7 +6,11 @@
 - Ce renouvellement régulier est un **heartbeat** : « je suis toujours là ». Si la date n'est plus mise à jour, Kubernetes en déduit que le composant est tombé.
 - Kubernetes s'en sert pour le heartbeat des `Nodes`, et pour l'élection du leader de `kube-controller-manager` et `kube-scheduler` en HA.
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Heartbeat des Nodes
 
@@ -40,7 +44,11 @@ kubectl get leases -n kube-node-lease
 kubectl get lease node01 -n kube-node-lease -o jsonpath='{.spec.renewTime}'
 ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Heartbeat de kube-controller-manager et kube-scheduler en HA (élection du leader)
 
@@ -68,7 +76,11 @@ kubectl get leases -n kube-system
 kubectl get lease kube-scheduler -n kube-system -o jsonpath='{.spec.holderIdentity}'
 ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Résumé
 
