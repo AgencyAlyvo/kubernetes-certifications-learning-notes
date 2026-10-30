@@ -6,7 +6,11 @@
 - C'est avec les cgroups que le `kubelet` et le `Container runtime` appliquent les `requests` et `limits` CPU / mémoire des `Pods` et de leurs containers.
 - Il existe 2 versions : **cgroup v1** et **cgroup v2**. cgroup v2 est la version actuelle (stable dans Kubernetes depuis 1.25).
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Quels sont les prérequis pour cgroup v2 ?
 
@@ -19,7 +23,11 @@
 
 - ⚠️ cgroup v1 est **déprécié** depuis Kubernetes 1.35 : le `kubelet` refuse de démarrer sur un `Node` en v1, sauf `failCgroupV1: false` dans sa configuration.
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Comment vérifier la version sur un Node ?
 
@@ -29,7 +37,11 @@ stat -fc %T /sys/fs/cgroup/
 # tmpfs      → cgroup v1
 ```
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## C'est quoi le cgroup driver ?
 
@@ -42,7 +54,11 @@ Il y en a 2 :
 | `cgroupfs` | directement, en créant des répertoires dans `/sys/fs/cgroup` (le système de fichiers des cgroups) |
 | `systemd` | en passant par `systemd`, le premier processus lancé par Linux au démarrage (PID 1), qui gère déjà les composants du `Node` (`kubelet`, `containerd`…) et leurs cgroups |
 
+<br /><br />
+
 ---
+
+<br /><br />
 
 ## Comment configurer le cgroup driver ?
 
